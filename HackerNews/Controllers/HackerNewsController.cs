@@ -19,37 +19,53 @@ namespace HackerNewsApi.Controllers
             this._cache = cache;
         }
 
-        [HttpGet]
-        public async Task<List<HackerNewsStory>> Index(string? searchTerm)
+        public async Task<ActionResult<List<HackerNewsStory>>> Index(string? searchTerm, int pageNumber = 1, int pageSize = 10)
         {
-            List<HackerNewsStory> stories = new List<HackerNewsStory>();
+            try
+            {
+                List<HackerNewsStory> stories = new List<HackerNewsStory>();
 
-            // Intenta obtener las historias de la caché
-            if (_cache.TryGetValue("HackerNewsStories", out stories))
-            {
-                // Si las historias están en caché, devuélvelas y filtra según el término de búsqueda
-                return FilterStories(stories, searchTerm);
-            }
-            else
-            {
-                // Si las historias no están en caché, obténlas de la API de Hacker News
-                var response = await _repository.NewsStoriesAsync();
-                if (response.IsSuccessStatusCode)
+                // Intenta obtener las historias de la caché
+                if (_cache.TryGetValue("HackerNewsStories", out stories))
                 {
-                    var storiesResponse = await response.Content.ReadAsStringAsync();
-                    var newstIds = JsonConvert.DeserializeObject<List<int>>(storiesResponse);
+                    // Si las historias están en caché, devuélvelas y filtra según el término de búsqueda
+                    stories = FilterStories(stories, searchTerm);
 
-                    var tasks = newstIds.Select(GetStoryAsync);
-                    stories = (await Task.WhenAll(tasks)).ToList();
+                    // Pagina los resultados
+                    var paginatedStories = stories.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
-                    // Almacena las historias en caché durante un tiempo limitado (por ejemplo, 5 minutos)
-                    _cache.Set("HackerNewsStories", stories, TimeSpan.FromMinutes(5));
-
-                    // Filtra las historias según el término de búsqueda
-                    return FilterStories(stories, searchTerm);
+                    return Ok(paginatedStories);
                 }
+                else
+                {
+                    // Si las historias no están en caché, obténlas de la API de Hacker News
+                    var response = await _repository.NewsStoriesAsync();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var storiesResponse = await response.Content.ReadAsStringAsync();
+                        var newstIds = JsonConvert.DeserializeObject<List<int>>(storiesResponse);
+
+                        var tasks = newstIds.Select(GetStoryAsync);
+                        stories = (await Task.WhenAll(tasks)).ToList();
+
+                        // Almacena las historias en caché durante un tiempo limitado (por ejemplo, 5 minutos)
+                        _cache.Set("HackerNewsStories", stories, TimeSpan.FromMinutes(5));
+
+                        // Filtra las historias según el término de búsqueda
+                        stories = FilterStories(stories, searchTerm);
+
+                        // Pagina los resultados
+                        var paginatedStories = stories.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+                        return Ok(paginatedStories);
+                    }
+                }
+                return NotFound();
             }
-            return stories;
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error: {ex.Message}");
+            }
         }
 
         private async Task<HackerNewsStory> GetStoryAsync(int storyId)

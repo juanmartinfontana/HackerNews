@@ -1,34 +1,54 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, Inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { NewsStoryService } from '../services/news-story.service';
+import { HackerNewsStory } from '../Models/hackerNewsStory.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, OnDestroy {
   public hackerNewsStories: HackerNewsStory[] | undefined;
+  public subscription: Subscription = new Subscription();
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined;
+  dataSource: any;
+  pageSize = 10;
+  pageIndex = 0;
+  stories: any[] = [];
+  totalElements = 0;
+  searchTerm = '';
+  pageNumber = 10;
+
   constructor(
-    private http: HttpClient,
-    @Inject("BASE_URL") private baseUrl: string
-  ) {
-    this.get("");
+    private newsStoryServices: NewsStoryService) { }
+
+
+  ngOnInit(): void {
+    this.loadStories();
   }
 
-  get(searchTerm: string) {
-    this.http
-      .get<HackerNewsStory[]>(
-        `${this.baseUrl}hackernews?searchTerm=${searchTerm}`
-      )
-      .subscribe(
-        result => {
-          this.hackerNewsStories = result;
-        },
-        error => console.error(error)
-      );
+  loadStories(event?: any) {
+    if (event) {
+      this.pageNumber = event.pageIndex + 1;
+    }
+
+    this.subscription = this.newsStoryServices.getAllStories(this.searchTerm, this.pageNumber, this.pageSize)
+      .subscribe(data => {
+        this.stories = data.items;
+        this.totalElements = data.totalCount;
+      });
   }
 
   search(event: KeyboardEvent) {
-    this.get((event.target as HTMLTextAreaElement).value);
+  //  this.get((event.target as HTMLTextAreaElement).value);
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   open(url: string) {
@@ -36,8 +56,3 @@ export class HomeComponent {
   }
 }
 
-interface HackerNewsStory {
-  title: string;
-  by: string;
-  url: string;
-}

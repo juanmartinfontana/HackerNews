@@ -6,16 +6,21 @@ namespace HackerNewsApp.Repository
 {
     public class HackerNewsRepository : IHackerNewsRepository
     {
-        private static HttpClient hackerNewsClient = new HttpClient();
+        private readonly IHttpClientAdapter _httpClientAdapter;
+
+        public HackerNewsRepository(IHttpClientAdapter httpClientAdapter)
+        {
+            _httpClientAdapter = httpClientAdapter;
+        }
 
         public async Task<HttpResponseMessage> NewsStoriesAsync()
         {
-            return await hackerNewsClient.GetAsync("https://hacker-news.firebaseio.com/v0/beststories.json");
+            return await _httpClientAdapter.GetAsync("https://hacker-news.firebaseio.com/v0/beststories.json");
         }
 
         public async Task<HttpResponseMessage> GetStoryByIdAsync(int id)
         {
-            return await hackerNewsClient.GetAsync(string.Format("https://hacker-news.firebaseio.com/v0/item/{0}.json", id));
+            return await _httpClientAdapter.GetAsync(string.Format("https://hacker-news.firebaseio.com/v0/item/{0}.json", id));
         }
     }
 }

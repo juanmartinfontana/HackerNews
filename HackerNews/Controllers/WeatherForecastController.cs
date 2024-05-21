@@ -12,7 +12,7 @@ public class WeatherForecastController : ControllerBase
     private readonly IHackerNewsRepository _repository;
     private readonly IMemoryCache _cache;
 
-    public WeatherForecastController(IHttpClientFactory httpClientFactory, IHackerNewsRepository repository, IMemoryCache cache)
+    public WeatherForecastController(IHackerNewsRepository repository, IMemoryCache cache)
     {
         this._repository = repository;
         this._cache = cache;

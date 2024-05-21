@@ -1,3 +1,4 @@
+using HackerNews.Adapter;
 using HackerNews.Interface;
 using HackerNewsApp.Repository;
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<IHttpClientAdapter, HttpClientAdapter>();
 builder.Services.AddScoped<IHackerNewsRepository, HackerNewsRepository>();
 
 var app = builder.Build();

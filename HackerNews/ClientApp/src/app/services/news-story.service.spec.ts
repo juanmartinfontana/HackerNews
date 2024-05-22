@@ -44,12 +44,13 @@ describe('NewsStoryService', () => {
   it('should call getAllStories with correct parameters', () => {
     const pageNumber = 1;
     const pageSize = 10;
+    const searchTerm = '';
 
-    service.getAllStories('', pageNumber, pageSize).subscribe(response => {
+    service.getAllStories(searchTerm, pageNumber, pageSize).subscribe(response => {
       expect(response).toBeTruthy();
     });
 
-    const request = httpMock.expectOne(`https://example.com/api/weatherforecast?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    const request = httpMock.expectOne(`https://example.com/api/weatherforecast?searchTerm=${searchTerm}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
     expect(request.request.method).toBe('GET');
     request.flush(mockData);
   });

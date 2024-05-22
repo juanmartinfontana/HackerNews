@@ -57,4 +57,19 @@ describe('HomeComponent', () => {
     expect(component.stories).toEqual(testData.items);
     expect(component.totalElements).toEqual(testData.totalCount);
   });
+
+  it('should fetch stories on search', () => {
+    const mockData = {
+      items: [{ title: 'Story 1' }, { title: 'Story 2' }],
+      totalCount: 2
+    };
+
+    newsStoryService.getAllStories.and.returnValue(of(mockData));
+
+    component.search('searchValue');
+
+    expect(newsStoryService.getAllStories).toHaveBeenCalledWith('searchValue', component.pageNumber, component.pageSize);
+    expect(component.stories).toEqual(mockData.items);
+    expect(component.totalElements).toEqual(mockData.totalCount);
+  });
 });

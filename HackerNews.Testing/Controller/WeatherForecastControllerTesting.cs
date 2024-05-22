@@ -35,10 +35,6 @@ namespace HackerNews.Testing.Controller
             Assert.IsType<ActionResult<PaginatedResult<HackerNewsStory>>>(result);
             var actionResult = result;
             Assert.NotNull(actionResult);
-            //var okResult = actionResult?.Result as OkObjectResult;
-            //Assert.NotNull(okResult);
-            //var paginatedResult = okResult?.Value as PaginatedResult<HackerNewsStory>;
-            //Assert.NotNull(paginatedResult);
         }
     }
 }

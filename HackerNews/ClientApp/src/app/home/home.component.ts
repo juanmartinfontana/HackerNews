@@ -13,13 +13,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   public hackerNewsStories: HackerNewsStory[] | undefined;
   public subscription: Subscription = new Subscription();
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined;
-  dataSource: any;
-  pageSize = 10;
-  pageIndex = 0;
-  stories: any[] = [];
-  totalElements = 0;
-  searchTerm = '';
-  pageNumber = 10;
+  public pageSize = 10;
+  public stories: any[] = [];
+  public totalElements = 0;
+  public searchTerm = '';
+  public pageNumber = 10;
 
   constructor(
     private newsStoryServices: NewsStoryService) { }
@@ -41,8 +39,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  search(event: KeyboardEvent) {
-  //  this.get((event.target as HTMLTextAreaElement).value);
+  search(searchValue: any) {
+    this.subscription = this.newsStoryServices.getAllStories(searchValue, this.pageNumber, this.pageSize)
+      .subscribe(data => {
+        this.stories = data.items;
+        this.totalElements = data.totalCount;
+      });
   }
 
   ngOnDestroy(): void {

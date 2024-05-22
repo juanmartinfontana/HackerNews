@@ -3,5 +3,9 @@ mat-card {
 }
 
 mat-card:hover {
-  background-color: rgb(165, 253, 180);
+  background-color: rgb(213, 207, 205);
+}
+
+mat-form-field.mat-form-field {
+  width: 100%;
 }

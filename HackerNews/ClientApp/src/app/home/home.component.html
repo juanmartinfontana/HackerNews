@@ -1,4 +1,12 @@
 <div>
+  <div layout="row" layout-align="start center" flex>
+    <div class="input-group">
+      <input type="text" class="form-control" placeholder="Search news" aria-describedby="addon" [(ngModel)]='searchTerm' [value]="searchTerm">
+      <button mat-button matSuffix mat-stroked-button aria-label="search" (click)="search(searchTerm)">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+  </div>
   <mat-card *ngFor="let story of stories" (click)="open(story.url)">
     <mat-card-header>
       <mat-card-title>{{ story.title }}</mat-card-title>
@@ -6,6 +14,6 @@
     </mat-card-header>
   </mat-card>
 
-  <mat-paginator [length]="totalElements" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" (page)="loadStories($event)">
+  <mat-paginator [length]="totalElements" [pageSize]="pageSize" (page)="loadStories($event)">
   </mat-paginator>
 </div>
